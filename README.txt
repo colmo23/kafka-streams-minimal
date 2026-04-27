@@ -23,6 +23,7 @@ kafka-streams-minimal/
   kafka          cp-kafka:7.4.3            Single broker; topics created by kafka-init
   kafka-init     cp-kafka:7.4.3            Creates input/output topics; exits when done
   elasticsearch  elasticsearch:7.17.16    Single node, security disabled
+  kibana         kibana:7.17.16           Web UI for ES indices; port 5601
   connect        built from ./connect      Confluent Connect + ES sink connector
   connect-init   curlimages/curl           Registers ES sink connector; exits when done
   streams-app    built from ./streams-app  Reads input, enriches with processed_at, writes to output
@@ -69,6 +70,20 @@ kafka-streams-minimal/
   docker compose logs -f streams-app
   docker compose logs -f connect
   docker compose logs --tail 50 connect   # last 50 lines, no follow
+
+## Kibana
+
+  http://localhost:5601
+
+  First-time setup (once per fresh volume):
+    1. Open http://localhost:5601
+    2. Go to Management → Stack Management → Index Patterns
+    3. Create index pattern: output*  (time field: processed_at)
+    4. Go to Discover to browse documents or Analytics → Dashboard to build charts
+
+  The output index is created automatically when the first message flows through.
+  Kibana is pinned to 7.17.16 to match Elasticsearch exactly — mixing major
+  versions causes Kibana to refuse to connect.
 
 ## Monitoring
 
