@@ -104,7 +104,40 @@ services:
     depends_on:
       - kafka
     restart: unless-stopped
+    ports:
+      - "9404:9404"
     environment:
       BOOTSTRAP_SERVERS: kafka:29092
       INPUT_TOPIC: input
       OUTPUT_TOPIC: output
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    command: --kafka.server=kafka:29092
+    ports:
+      - "9308:9308"
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    depends_on:
+      - prometheus
+    restart: unless-stopped

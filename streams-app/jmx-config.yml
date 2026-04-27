@@ -1,0 +1,41 @@
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  # stream-task-metrics: thread-id + task-id + sub-metrics
+  - pattern: 'kafka\.streams<type=(.+), thread-id=(.+), task-id=(.+), (.+)-id=(.+)><>(.+):'
+    name: kafka_streams_$1_$6
+    labels:
+      thread_id: "$2"
+      task_id:   "$3"
+      id_type:   "$4"
+      id:        "$5"
+    type: GAUGE
+  # stream-task-metrics: thread-id + task-id
+  - pattern: 'kafka\.streams<type=(.+), thread-id=(.+), task-id=(.+)><>(.+):'
+    name: kafka_streams_$1_$4
+    labels:
+      thread_id: "$2"
+      task_id:   "$3"
+    type: GAUGE
+  # stream-thread-metrics: thread-id only
+  - pattern: 'kafka\.streams<type=(.+), thread-id=(.+)><>(.+):'
+    name: kafka_streams_$1_$3
+    labels:
+      thread_id: "$2"
+    type: GAUGE
+  # stream-metrics: app-level, no labels
+  - pattern: 'kafka\.streams<type=(.+)><>(.+):'
+    name: kafka_streams_$1_$2
+    type: GAUGE
+  # Internal producer metrics
+  - pattern: 'kafka\.producer<type=(.+), client-id=(.+)><>(.+):'
+    name: kafka_producer_$1_$3
+    labels:
+      client_id: "$2"
+    type: GAUGE
+  # Internal consumer metrics
+  - pattern: 'kafka\.consumer<type=(.+), client-id=(.+)><>(.+):'
+    name: kafka_consumer_$1_$3
+    labels:
+      client_id: "$2"
+    type: GAUGE
